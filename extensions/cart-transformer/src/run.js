@@ -27,18 +27,16 @@ const NO_CHANGES = {
  * @returns {FunctionRunResult}
  */
 export function run(input) {
-  console.log("erere rer rqqq")
-  console.log(JSON.stringify(input));
-  console.log(JSON.stringify(input.localization.country.isoCode))
+  if(input.cart.attribute){
   const operations = input.cart.lines.reduce(
     /** @param {CartOperation[]} acc */
     (acc, cartLine) => {
   
-      var customTax = 1.0125;  // 1.25%
-      if(input.localization.country.isoCode == "ES"){
-        console.log('spain')
-        var customTax = 1.1;
-      }
+      let customTax = 1.1;  // 1.25%
+      // if(input.localization.country.isoCode == "ES"){
+      //   console.log('spain')
+      //   var customTax = 1.1;
+      // }
       
       const expandOperation = optionallyBuildExpandOperation(cartLine, customTax);
       if (expandOperation) {
@@ -49,8 +47,11 @@ export function run(input) {
     },
     []
   );
-
   return operations ? { operations } : NO_CHANGES;
+  }else{
+    return NO_CHANGES;
+  }
+  
 };
 
 /**
@@ -65,9 +66,7 @@ function optionallyBuildExpandOperation({ id: cartLineId, merchandise, cost, qua
       price: {
         adjustment: {
           fixedPricePerUnit: {
-            amount: customTax === 1.1 ? // Check if customTax is 1.1
-            ((cost.totalAmount.amount / quantity) / customTax).toFixed(2) : // If customTax is 1.1,
-            ((cost.totalAmount.amount / quantity) * customTax).toFixed(2), // If customTax is not 1.1,
+            amount: ((cost.totalAmount.amount / quantity) / customTax).toFixed(2)
           },
         },
       },
@@ -80,3 +79,10 @@ function optionallyBuildExpandOperation({ id: cartLineId, merchandise, cost, qua
 
   return null;
 }
+
+/**
+ * 
+ * customTax === 1.1 ?
+            ((cost.totalAmount.amount / quantity) / customTax).toFixed(2) : 
+            ((cost.totalAmount.amount / quantity) * customTax).toFixed(2),
+ */

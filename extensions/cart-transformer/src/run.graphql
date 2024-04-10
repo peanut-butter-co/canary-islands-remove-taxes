@@ -1,7 +1,9 @@
 query RunInput {
   presentmentCurrencyRate
-  
   cart {
+    attribute {
+      key
+    }
     lines {
       id
       quantity
@@ -17,6 +19,9 @@ query RunInput {
           id
           title
         }
+      }
+      attribute {
+        key
       }
     }
     buyerIdentity{
