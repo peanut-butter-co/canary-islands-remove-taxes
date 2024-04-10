@@ -20,12 +20,11 @@ function Extension() {
 
   const setAttribute = useApplyAttributeChange();
 
+  const taxExemptProvinces = ["TF", "GC"];
+
   useEffect(() => {
     const handleLogData = async () => {
-      if (
-        (provinceCode === "TF" || provinceCode === "GC") &&
-        countryCode === "ES"
-      ) {
+      if (countryCode === "ES" && taxExemptProvinces.includes(provinceCode)) {
         console.log(provinceCode);
         console.log(countryCode);
         setIsModalOpen(true);
@@ -36,6 +35,11 @@ function Extension() {
         });
         console.log(myAtt);
       } else {
+        const myAtt = await setAttribute({
+          type: "updateAttribute",
+          key: `province_vat_exempt`,
+          value: "false",
+        });
         setIsModalOpen(false);
       }
     };

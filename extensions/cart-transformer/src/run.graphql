@@ -1,8 +1,9 @@
 query RunInput {
   presentmentCurrencyRate
   cart {
-    attribute {
-      key
+    province_vat_exempt: attribute (key: "province_vat_exempt") {
+      key 
+      value
     }
     lines {
       id
@@ -33,6 +34,4 @@ query RunInput {
       isoCode
     }
   }
-  
-  
 }
