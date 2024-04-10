@@ -27,17 +27,23 @@ const NO_CHANGES = {
  * @returns {FunctionRunResult}
  */
 export function run(input) {
-  console.log("erere rer r")
-  console.log(input);
+  console.log("erere rer rqqq")
+  console.log(JSON.stringify(input));
+  console.log(JSON.stringify(input.localization.country.isoCode))
   const operations = input.cart.lines.reduce(
     /** @param {CartOperation[]} acc */
     (acc, cartLine) => {
-      const customTax = 1.0125; // 1.25%
-       const expandOperation = optionallyBuildExpandOperation(cartLine, customTax);
-
-       if (expandOperation) {
-         return [...acc, { expand: expandOperation }];
-       }
+  
+      var customTax = 1.0125;  // 1.25%
+      if(input.localization.country.isoCode == "ES"){
+        console.log('spain')
+        var customTax = 1.1;
+      }
+      
+      const expandOperation = optionallyBuildExpandOperation(cartLine, customTax);
+      if (expandOperation) {
+        return [...acc, { expand: expandOperation }];
+      }
 
        return acc;
     },
@@ -59,7 +65,9 @@ function optionallyBuildExpandOperation({ id: cartLineId, merchandise, cost, qua
       price: {
         adjustment: {
           fixedPricePerUnit: {
-            amount: ((cost.totalAmount.amount  / quantity)* customTax).toFixed(2),
+            amount: customTax === 1.1 ? // Check if customTax is 1.1
+            ((cost.totalAmount.amount / quantity) / customTax).toFixed(2) : // If customTax is 1.1,
+            ((cost.totalAmount.amount / quantity) * customTax).toFixed(2), // If customTax is not 1.1,
           },
         },
       },

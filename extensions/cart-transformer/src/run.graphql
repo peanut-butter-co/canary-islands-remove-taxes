@@ -1,5 +1,6 @@
 query RunInput {
   presentmentCurrencyRate
+  
   cart {
     lines {
       id
@@ -18,5 +19,15 @@ query RunInput {
         }
       }
     }
+    buyerIdentity{
+      email
+    }
   }
+  localization{
+    country{
+      isoCode
+    }
+  }
+  
+  
 }
