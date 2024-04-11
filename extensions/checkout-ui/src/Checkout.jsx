@@ -15,7 +15,7 @@ export default reactExtension("purchase.checkout.block.render", () => (
 ));
 
 function Extension() {
-  const [isModalOpen, setIsModalOpen] = useState(true);
+ // const [isModalOpen, setIsModalOpen] = useState(true);
   const { provinceCode, countryCode } = useShippingAddress();
 
   const setAttribute = useApplyAttributeChange();
@@ -27,29 +27,28 @@ function Extension() {
       if (countryCode === "ES" && taxExemptProvinces.includes(provinceCode)) {
         console.log(provinceCode);
         console.log(countryCode);
-        setIsModalOpen(true);
-        const myAtt = await setAttribute({
+       // setIsModalOpen(true);
+        setAttribute({
           type: "updateAttribute",
           key: `province_vat_exempt`,
           value: "true",
         });
-        console.log(myAtt);
       } else {
-        const myAtt = await setAttribute({
+        setAttribute({
           type: "updateAttribute",
           key: `province_vat_exempt`,
           value: "false",
         });
-        setIsModalOpen(false);
+      //  setIsModalOpen(false);
       }
     };
 
     handleLogData();
   }, [provinceCode, countryCode]);
 
-  return <>{isModalOpen && <LinkWithModal />}</>;
+  return <></>;
 }
-
+/*
 const LinkWithModal = forwardRef((props, ref) => {
   const { ui } = useApi();
   const linkRef = useRef(null);
@@ -76,7 +75,7 @@ const LinkWithModal = forwardRef((props, ref) => {
         </Modal>
       }
     >
-      Return policy
+      Show Popup
     </Link>
   );
-});
+});*/
