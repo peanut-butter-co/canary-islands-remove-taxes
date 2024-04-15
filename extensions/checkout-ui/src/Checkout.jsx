@@ -25,19 +25,25 @@ function Extension() {
   });
 
   const countrySettings = {
-    "ES": {
+    "ES": { // Spain
       taxExemption: "per_province",
-      taxExemptionProvinces: ["TF", "GC"],
+      taxExemptionProvinces: ["TF", "GC", "CE", "ML"],  // Santa Cruz de Tenerife, Las Palmas, Ceuta y Melilla
       documentRequired: "per_province",
-      documentRequiredProvinces: ["TF", "GC"]
+      documentRequiredProvinces: ["TF", "GC", "CE", "ML"] // Santa Cruz de Tenerife, Las Palmas, Ceuta y Melilla
     },
-    "AD": {
+    "AD": { // Andorra
       taxExemption: "yes",
       taxExemptionProvinces: [],
       documentRequired: "yes",
       documentRequiredProvinces: []
     },
-    "CH": {
+    "CH": { // Switzerland
+      taxExemption: "no",
+      taxExemptionProvinces: [],
+      documentRequired: "yes",
+      documentRequiredProvinces: []
+    },
+    "GB": { // United kingdom
       taxExemption: "no",
       taxExemptionProvinces: [],
       documentRequired: "yes",
@@ -65,6 +71,7 @@ function Extension() {
   }
 
   const documentRequired = (countryCode, provinceCode) => {
+
     if (countrySettings[countryCode] && (
         countrySettings[countryCode].documentRequired == "yes" || 
         countrySettings[countryCode].documentRequired == "per_province" && countrySettings[countryCode].documentRequiredProvinces.includes(provinceCode))) {
