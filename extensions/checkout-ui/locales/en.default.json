@@ -1,3 +1,5 @@
 {
-  "welcome": "Welcome to the {{target}} extension!"
+  "welcome": "Welcome to the {{target}} extension!",
+  "label": "National Identification Document / Id Card",
+  "error": "National Identification Document / Id Card is Required"
 }

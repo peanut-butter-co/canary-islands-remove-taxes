@@ -51,3 +51,29 @@ export function run(input) {
 
   return operations ? { operations } : NO_CHANGES;
 };
+
+/**
+ * @param {RunInput['cart']['lines'][number]} cartLine
+ */
+/*
+function optionallyBuildExpandOperation({ id: cartLineId, merchandise, cost, quantity }, customTax) {
+  if (merchandise.__typename === "ProductVariant") {
+    console.log(merchandise.id);
+    const expandedCartItems =[{
+      merchandiseId: merchandise.id,
+      quantity: 1,
+      price: {
+        adjustment: {
+          fixedPricePerUnit: {
+            amount: ((cost.totalAmount.amount / quantity) / customTax).toFixed(2)
+          },
+        },
+      },
+    });
+  });
+
+  return operations ? { operations } : NO_CHANGES;
+};
+  return null;
+}
+*/
