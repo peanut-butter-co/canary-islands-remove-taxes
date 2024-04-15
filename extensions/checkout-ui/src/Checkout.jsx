@@ -18,22 +18,62 @@ export default reactExtension("purchase.checkout.block.render", () => (
 function Extension() {
   const metafieldNamespace = "customer";
   const metafieldKey = "card_id";
-  const taxExemptCountryCodes = ["ES", "US", "AD", "CH"];
-  const taxExemptProvinces = ["TF", "GC"];
+
+  const documentMetafieldField = useMetafield({
+    namespace: metafieldNamespace,
+    key: metafieldKey
+  });
+
+  const countrySettings = {
+    "ES": {
+      taxExemption: "per_province",
+      taxExemptionProvinces: ["TF", "GC"],
+      documentRequired: "per_province",
+      documentRequiredProvinces: ["TF", "GC"]
+    },
+    "AD": {
+      taxExemption: "yes",
+      taxExemptionProvinces: [],
+      documentRequired: "yes",
+      documentRequiredProvinces: []
+    },
+    "CH": {
+      taxExemption: "no",
+      taxExemptionProvinces: [],
+      documentRequired: "yes",
+      documentRequiredProvinces: []
+    }
+  }
 
   const { provinceCode, countryCode } = useShippingAddress();
   const translate = useTranslate();
-  const [cardId, setCardId] = useState('');
+  const [cardId, setCardId] = useState(documentMetafieldField?.value ? documentMetafieldField.value : '');
   const [error, setError] = useState('');
-  const deliveryInstructions = useMetafield({ namespace: metafieldNamespace, key: metafieldKey });
-  // console.log(deliveryInstructions);
 
   const applyMetafieldsChange = useApplyMetafieldsChange();
   const setAttribute = useApplyAttributeChange();
 
+  const addressTaxExempt = (countryCode, provinceCode) => {
+    
+    if (countrySettings[countryCode] && (
+        countrySettings[countryCode].taxExemption == "yes" || 
+        countrySettings[countryCode].taxExemption == "per_province" && countrySettings[countryCode].taxExemptionProvinces.includes(provinceCode))) {
+      return true;
+    }
+
+    return false;
+  }
+
+  const documentRequired = (countryCode, provinceCode) => {
+    if (countrySettings[countryCode] && (
+        countrySettings[countryCode].documentRequired == "yes" || 
+        countrySettings[countryCode].documentRequired == "per_province" && countrySettings[countryCode].documentRequiredProvinces.includes(provinceCode))) {
+      return true;
+    }  
+  }
+
   useBuyerJourneyIntercept(({ canBlockProgress }) => {
-    const shouldBlockProgress = canBlockProgress && cardId === '' &&
-      ((taxExemptCountryCodes.includes(countryCode) && taxExemptProvinces.includes(provinceCode)) || countryCode === "US" || countryCode === "AD" || countryCode === "CH");
+    const shouldBlockProgress = canBlockProgress && cardId === '' && documentRequired(countryCode, provinceCode);
 
     if (shouldBlockProgress) {
       setError(translate('error'));
@@ -50,17 +90,14 @@ function Extension() {
 
   useEffect(() => {
     const handleLogData = async () => {
-      const isTaxExemptCountry = taxExemptCountryCodes.includes(countryCode);
-      const isTaxExemptProvince = taxExemptProvinces.includes(provinceCode);
-      const shouldAddMetafield = (isTaxExemptCountry && isTaxExemptProvince) || countryCode === "US" || countryCode === "AD" || countryCode === "CH";
 
       setAttribute({
         type: "updateAttribute",
         key: `province_vat_exempt`,
-        value: (isTaxExemptCountry && isTaxExemptProvince) ? "true" : "false",
+        value:  addressTaxExempt(countryCode, provinceCode) ? "true" : "false",
       });
 
-      if (shouldAddMetafield && cardId !== '') {
+      if (documentRequired(countryCode, provinceCode) && cardId !== '') {
         applyMetafieldsChange({
           type: "updateMetafield",
           namespace: metafieldNamespace,
@@ -82,7 +119,7 @@ function Extension() {
   }, [provinceCode, countryCode, cardId]);
 
   return (
-    (taxExemptCountryCodes.includes(countryCode) && taxExemptProvinces.includes(provinceCode)) && (
+    (documentRequired(countryCode, provinceCode)) && (
       <BlockStack>
         <TextField
           label={translate('label')}
