@@ -1,3 +1,6 @@
 {
-  "welcome": "Bienvenue dans l'extension {{target}}!"
+  "welcome": "Bienvenue dans l'extension {{target}}!",
+  "label": "Carte nationale d'identité / Carte d'identité",
+  "error": "La carte nationale d'identité / la carte d'identité est requise",
+  "accessory": "The ID card is used to identify the user."
 }

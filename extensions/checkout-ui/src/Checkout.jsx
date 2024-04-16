@@ -1,78 +1,167 @@
-import React, { useState, useEffect, useRef, forwardRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  useApi,
+  Icon,
+  Pressable,
+  Tooltip,
+  TextField,
+  BlockStack,
+  useTranslate,
   reactExtension,
-  Modal,
-  Link,
-  Button,
-  TextBlock,
   useShippingAddress,
   useApplyAttributeChange,
+  useBuyerJourneyIntercept,
+  useApplyMetafieldsChange,
+  useMetafield,
 } from "@shopify/ui-extensions-react/checkout";
 
-export default reactExtension("purchase.checkout.block.render", () => (
+export default reactExtension("purchase.checkout.delivery-address.render-before", () => (
   <Extension />
 ));
 
 function Extension() {
-  const [isModalOpen, setIsModalOpen] = useState(true);
-  const { provinceCode, countryCode } = useShippingAddress();
+  const metafieldNamespace = "customer";
+  const metafieldKey = "card_id";
 
+  const documentMetafieldField = useMetafield({
+    namespace: metafieldNamespace,
+    key: metafieldKey
+  });
+
+  const countrySettings = {
+    "ES": { // Spain
+      taxExemption: "per_province",
+      taxExemptionProvinces: ["TF", "GC", "CE", "ML"],  // Santa Cruz de Tenerife, Las Palmas, Ceuta y Melilla
+      documentRequired: "per_province",
+      documentRequiredProvinces: ["TF", "GC", "CE", "ML"] // Santa Cruz de Tenerife, Las Palmas, Ceuta y Melilla
+    },
+    "AD": { // Andorra
+      taxExemption: "yes",
+      taxExemptionProvinces: [],
+      documentRequired: "yes",
+      documentRequiredProvinces: []
+    },
+    "CH": { // Switzerland
+      taxExemption: "no",
+      taxExemptionProvinces: [],
+      documentRequired: "yes",
+      documentRequiredProvinces: []
+    },
+    "GB": { // United kingdom
+      taxExemption: "no",
+      taxExemptionProvinces: [],
+      documentRequired: "yes",
+      documentRequiredProvinces: []
+    }
+  }
+
+  const { provinceCode, countryCode } = useShippingAddress();
+  const translate = useTranslate();
+  const [cardId, setCardId] = useState(documentMetafieldField?.value ? documentMetafieldField.value : '');
+  const [error, setError] = useState('');
+
+  const applyMetafieldsChange = useApplyMetafieldsChange();
   const setAttribute = useApplyAttributeChange();
+
+  const addressTaxExempt = (countryCode, provinceCode) => {
+
+    if (countrySettings[countryCode] && (
+      countrySettings[countryCode].taxExemption == "yes" ||
+      countrySettings[countryCode].taxExemption == "per_province" && countrySettings[countryCode].taxExemptionProvinces.includes(provinceCode))) {
+      return true;
+    }
+
+    return false;
+  }
+
+  const documentRequired = (countryCode, provinceCode) => {
+
+    if (countrySettings[countryCode] && (
+      countrySettings[countryCode].documentRequired == "yes" ||
+      countrySettings[countryCode].documentRequired == "per_province" && countrySettings[countryCode].documentRequiredProvinces.includes(provinceCode))) {
+      return true;
+    }
+  }
+  const clearValidationErrors = (value) => {
+    if (value == '') {
+      setError(translate('error'));
+    } else {
+      setError('');
+    }
+  }
+  useBuyerJourneyIntercept(({ canBlockProgress }) => {
+    const shouldBlockProgress = canBlockProgress && cardId === '' && documentRequired(countryCode, provinceCode);
+
+    if (shouldBlockProgress) {
+      return {
+        behavior: "block",
+        reason: translate('error'),
+        perform: (result) => {
+          if (result.behavior === "block") {
+            setError(translate('error'));
+          }
+        },
+      };
+    }
+    return {
+      behavior: "allow",
+      perform: () => {
+        setError("");
+      },
+    };
+  });
 
   useEffect(() => {
     const handleLogData = async () => {
-      if (
-        (provinceCode === "TF" || provinceCode === "GC") &&
-        countryCode === "ES"
-      ) {
-        console.log(provinceCode);
-        console.log(countryCode);
-        setIsModalOpen(true);
-        const myAtt = await setAttribute({
-          type: "updateAttribute",
-          key: `province_vat_exempt`,
-          value: "true",
+
+      setAttribute({
+        type: "updateAttribute",
+        key: `province_vat_exempt`,
+        value: addressTaxExempt(countryCode, provinceCode) ? "true" : "false",
+      });
+
+      if (documentRequired(countryCode, provinceCode) && cardId !== '') {
+        applyMetafieldsChange({
+          type: "updateMetafield",
+          namespace: metafieldNamespace,
+          key: metafieldKey,
+          valueType: "string",
+          value: cardId,
         });
-        console.log(myAtt);
       } else {
-        setIsModalOpen(false);
+        setCardId('');
+        applyMetafieldsChange({
+          type: "removeMetafield",
+          namespace: metafieldNamespace,
+          key: metafieldKey,
+        });
       }
     };
 
     handleLogData();
-  }, [provinceCode, countryCode]);
-
-  return <>{isModalOpen && <LinkWithModal />}</>;
-}
-
-const LinkWithModal = forwardRef((props, ref) => {
-  const { ui } = useApi();
-  const linkRef = useRef(null);
-
-  useEffect(() => {
-    console.log(linkRef);
-    if (linkRef.current) {
-      console.log(linkRef.current);
-      linkRef.current.click();
-    }
-  }, [linkRef]);
+  }, [provinceCode, countryCode, cardId]);
 
   return (
-    <Link
-      ref={ref}
-      overlay={
-        <Modal id="my-modal" padding title="Actualizacion de precios">
-          <TextBlock>
-            Los precios de estos articulos cambiaron y se actualizacion en el
-            carrito.
-          </TextBlock>
-          <TextBlock>Products Loop Here</TextBlock>
-          <Button onPress={() => ui.overlay.close("my-modal")}>Close</Button>
-        </Modal>
-      }
-    >
-      Return policy
-    </Link>
+    (documentRequired(countryCode, provinceCode)) && (
+      <BlockStack>
+        <TextField
+          label={translate('label')}
+          onChange={(value) => setCardId(value)}
+          onInput={clearValidationErrors}
+          value={cardId}
+          error={error}
+          accessory={
+            <Pressable
+              overlay={
+                <Tooltip>
+                  {translate('accessory')}
+                </Tooltip>
+              }
+            >
+              <Icon source="info" appearance="subdued" />
+            </Pressable>
+          }
+        />
+      </BlockStack>
+    )
   );
-});
+}
