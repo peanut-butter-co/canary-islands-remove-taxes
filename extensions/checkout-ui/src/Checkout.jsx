@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import {
+  Icon,
+  Pressable,
+  Tooltip,
   TextField,
   BlockStack,
   useTranslate,
@@ -11,7 +14,7 @@ import {
   useMetafield,
 } from "@shopify/ui-extensions-react/checkout";
 
-export default reactExtension("purchase.checkout.block.render", () => (
+export default reactExtension("purchase.checkout.delivery-address.render-before", () => (
   <Extension />
 ));
 
@@ -60,10 +63,10 @@ function Extension() {
   const setAttribute = useApplyAttributeChange();
 
   const addressTaxExempt = (countryCode, provinceCode) => {
-    
+
     if (countrySettings[countryCode] && (
-        countrySettings[countryCode].taxExemption == "yes" || 
-        countrySettings[countryCode].taxExemption == "per_province" && countrySettings[countryCode].taxExemptionProvinces.includes(provinceCode))) {
+      countrySettings[countryCode].taxExemption == "yes" ||
+      countrySettings[countryCode].taxExemption == "per_province" && countrySettings[countryCode].taxExemptionProvinces.includes(provinceCode))) {
       return true;
     }
 
@@ -73,25 +76,37 @@ function Extension() {
   const documentRequired = (countryCode, provinceCode) => {
 
     if (countrySettings[countryCode] && (
-        countrySettings[countryCode].documentRequired == "yes" || 
-        countrySettings[countryCode].documentRequired == "per_province" && countrySettings[countryCode].documentRequiredProvinces.includes(provinceCode))) {
+      countrySettings[countryCode].documentRequired == "yes" ||
+      countrySettings[countryCode].documentRequired == "per_province" && countrySettings[countryCode].documentRequiredProvinces.includes(provinceCode))) {
       return true;
-    }  
+    }
   }
-
+  const clearValidationErrors = (value) => {
+    if (value == '') {
+      setError(translate('error'));
+    } else {
+      setError('');
+    }
+  }
   useBuyerJourneyIntercept(({ canBlockProgress }) => {
     const shouldBlockProgress = canBlockProgress && cardId === '' && documentRequired(countryCode, provinceCode);
 
     if (shouldBlockProgress) {
-      setError(translate('error'));
       return {
         behavior: "block",
         reason: translate('error'),
+        perform: (result) => {
+          if (result.behavior === "block") {
+            setError(translate('error'));
+          }
+        },
       };
     }
-    setError("");
     return {
       behavior: "allow",
+      perform: () => {
+        setError("");
+      },
     };
   });
 
@@ -101,7 +116,7 @@ function Extension() {
       setAttribute({
         type: "updateAttribute",
         key: `province_vat_exempt`,
-        value:  addressTaxExempt(countryCode, provinceCode) ? "true" : "false",
+        value: addressTaxExempt(countryCode, provinceCode) ? "true" : "false",
       });
 
       if (documentRequired(countryCode, provinceCode) && cardId !== '') {
@@ -131,8 +146,20 @@ function Extension() {
         <TextField
           label={translate('label')}
           onChange={(value) => setCardId(value)}
+          onInput={clearValidationErrors}
           value={cardId}
           error={error}
+          accessory={
+            <Pressable
+              overlay={
+                <Tooltip>
+                  {translate('accessory')}
+                </Tooltip>
+              }
+            >
+              <Icon source="info" appearance="subdued" />
+            </Pressable>
+          }
         />
       </BlockStack>
     )
