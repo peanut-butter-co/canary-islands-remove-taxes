@@ -1,8 +1,8 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "06eea9f2b90f5be3fd1ef86614aa5d79"
-name = "canary-islands-remove-tax"
-handle = "canary-islands-remove-tax"
+name = "Peanut Butter - Canarias"
+handle = "peanut-butter-canarias"
 application_url = "https://shopify.dev/apps/default-app-home"
 embedded = true
 
