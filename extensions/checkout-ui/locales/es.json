@@ -1,6 +1,6 @@
 {
   "welcome": "Welcome to the {{target}} extension!",
-  "label": "Documento nacional de identidad",
-  "error": "Documento nacional de identidad (requerido)",
-  "accessory": "La tarjeta de identificación se utiliza para identificar al usuario."
+  "label": "Documento Nacional de Identidad",
+  "error": "Este campo es obligatorio para las aduanas",
+  "accessory": "Te pedimos esta información ya que el envío pasará por aduanas"
 }
