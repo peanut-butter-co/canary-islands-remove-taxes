@@ -33,7 +33,20 @@ export function run(input) {
   let operations = [];
 
   input.cart.lines.map((line) => {
-    const taxDivider = 1.1;
+    let taxDivider = 1.21;
+
+    if (line.merchandise.__typename === "ProductVariant") {
+      const productTaxPercentage = line.merchandise.product.tax_percentage;
+      if (productTaxPercentage?.value) {
+        const taxPercentageNumber = parseFloat(productTaxPercentage.value);
+        // Just in case for some reason the tax percentage is not a number or it is above 100
+        if (isNaN(taxPercentageNumber) || taxPercentageNumber > 100) {
+          taxDivider = 1.21;
+        } else {
+          taxDivider = 1 + (taxPercentageNumber / 100);
+        }
+      }
+    }
 
     operations.push({
       update: {
