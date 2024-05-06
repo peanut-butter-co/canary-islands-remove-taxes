@@ -40,14 +40,12 @@ export function run(input) {
       if (productTaxPercentage?.value) {
         const taxPercentageNumber = parseFloat(productTaxPercentage.value);
         // Just in case for some reason the tax percentage is not a number or it is above 100
-        if (isNaN(taxPercentageNumber) || taxPercentageNumber > 100) {
-          taxDivider = 1.21;
-        } else {
+        if (!(isNaN(taxPercentageNumber)) && taxPercentageNumber <= 100) {
           taxDivider = 1 + (taxPercentageNumber / 100);
         }
       }
     }
-
+    
     operations.push({
       update: {
         cartLineId: line.id,
