@@ -1,3 +1,8 @@
+# Metafield definition for the extension to be effective:
+
+![image](https://github.com/peanut-butter-co/canary-islands-remove-taxes/assets/20563392/c231a71f-3cda-4782-9d29-5972d26250cf)
+
+
 # Shopify App Template - None (app with extensions only)
 
 This is a template for building a [Shopify app](https://shopify.dev/docs/apps/getting-started) that includes no app home UI. It contains the basics for building a Shopify app that uses only app extensions.
