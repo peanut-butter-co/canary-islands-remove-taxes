@@ -12,13 +12,18 @@ query RunInput {
         totalAmount {
           amount
           currencyCode
-        }
+        } 
       }
       merchandise {
         __typename
         ... on ProductVariant {
           id
           title
+          product {
+            tax_percentage: metafield (namespace: "cei" key: "tax_percentage") {
+              value
+            }
+          }
         }
       }
     }
