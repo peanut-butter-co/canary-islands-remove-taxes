@@ -1,7 +1,6 @@
 # Metafield definition for the extension to be effective:
 
-![image](https://github.com/peanut-butter-co/canary-islands-remove-taxes/assets/20563392/c231a71f-3cda-4782-9d29-5972d26250cf)
-
+![Screen Shot 2024-05-07 at 14 00 45](https://github.com/peanut-butter-co/canary-islands-remove-taxes/assets/9419680/49c7d377-89bd-483a-8669-517b48f224b8)
 
 # Shopify App Template - None (app with extensions only)
 
