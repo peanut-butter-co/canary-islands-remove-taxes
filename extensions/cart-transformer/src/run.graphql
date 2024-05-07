@@ -20,7 +20,7 @@ query RunInput {
           id
           title
           product {
-            tax_percentage: metafield (namespace: "cei" key: "tax_percentage") {
+            tax_percentage: metafield (namespace: "tax" key: "percentage") {
               value
             }
           }
