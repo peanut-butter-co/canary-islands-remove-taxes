@@ -12,8 +12,9 @@ import { BuyerJourneyStep } from "../generated/api";
  * @returns {FunctionRunResult}
  */
 export function run(input) {
+
   // If the buyer is not in the checkout, or hasn't provided a delivery address, we don't need to do anything
-  if (input.buyerJourney.step !== BuyerJourneyStep.CheckoutInteraction || !input.cart.deliveryGroups || !input.cart.deliveryGroups[0].deliveryAddress) {
+  if (input.buyerJourney.step === BuyerJourneyStep.CartInteraction || !input.cart.deliveryGroups || input.cart.deliveryGroups.length === 0 || !input.cart.deliveryGroups[0].deliveryAddress) {
     return {
       errors: []
     }
@@ -45,7 +46,6 @@ export function run(input) {
   const lang = Object.keys(langs).includes(input.localization.language.isoCode.toLowerCase())
     ? input.localization.language.isoCode.toLowerCase()
     : "es";
-
 
   // Setting up the country settings (this is copied from the UI extension code)
   const countrySettings = {
@@ -98,6 +98,10 @@ export function run(input) {
   // Now we can check if the document is required and if hasn't been provided
 
   const { countryCode, provinceCode } = input.cart.deliveryGroups[0].deliveryAddress;
+
+/*
+  This part doesn't work right now, Functions don't have access to the checkout metafields
+
   const card_id = input.cart.buyerIdentity?.customer?.card_id?.value;
 
   if (documentRequired(countryCode, provinceCode) && !card_id) {
@@ -108,6 +112,7 @@ export function run(input) {
       }]
     }
   }
+*/
 
   // And we can also check if the user is tax exempt
 
