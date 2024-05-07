@@ -1,0 +1,28 @@
+query RunInput {
+  buyerJourney {
+    step
+  }
+  cart {
+    province_vat_exempt: attribute(key: "province_vat_exempt") {
+      value
+    }
+    buyerIdentity {
+      customer {
+        card_id: metafield(namespace: "customer", key: "card_id") {
+          value
+        }
+      }
+    }
+    deliveryGroups {
+      deliveryAddress {
+        countryCode
+        provinceCode
+      }
+    }
+  }
+  localization {
+    language {
+      isoCode
+    }
+  }
+}
