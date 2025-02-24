@@ -51,7 +51,13 @@ function Extension() {
       taxExemptionProvinces: [],
       documentRequired: "yes",
       documentRequiredProvinces: []
-    }
+    },
+    "CL": { // Chile
+      taxExemption: "no",
+      taxExemptionProvinces: [],
+      documentRequired: "yes",
+      documentRequiredProvinces: []
+    },
   }
 
   const { provinceCode, countryCode } = useShippingAddress();
